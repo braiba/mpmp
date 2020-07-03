@@ -1,0 +1,41 @@
+<html>
+    <body>
+        <div>
+            <label for="gridSize">Grid Size:</label>
+
+            <input
+                type="number"
+                [(ngModel)]="model.gridSize"
+                min="3"
+                max="10"
+                name="gridSize"
+                id="gridSize"
+            />
+
+            <button
+                type="button"
+                (click)="buildGrid()"
+            >
+                Generate Grid
+            </button>
+        </div>
+
+        <table>
+            <tbody>
+                <tr *ngFor="let row of state.grid; index as y">
+                    <td *ngFor="let cell of row; index as x">
+                        <div
+                            (click)="clickCell(x, y)"
+                            class="cell"
+                            [ngClass]="{
+                                'cell-selected': cell === CellStateEnum.Selected,
+                                'cell-impossible': cell === CellStateEnum.Impossible,
+                                'cell-forbidden': cell === CellStateEnum.Forbidden
+                            }"
+                        ></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>
