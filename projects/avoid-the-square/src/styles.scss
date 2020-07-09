@@ -1,0 +1,28 @@
+.cell {
+    stroke: black;
+    fill: white;
+}
+
+.cell-team-a {
+    fill: blue;
+}
+
+.cell-team-b {
+    fill: red;
+}
+
+.cell-forbidden {
+    fill: grey;
+}
+
+.square {
+    fill: none;
+}
+
+.square-team-a {
+    stroke: blue;
+}
+
+.square-team-b {
+    stroke: red;
+}

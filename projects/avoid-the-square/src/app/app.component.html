@@ -1,0 +1,48 @@
+<html>
+<body>
+<div>
+    <label for="gridSize">Grid Size:</label>
+
+    <input
+        type="number"
+        [(ngModel)]="model.gridSize"
+        min="3"
+        max="10"
+        name="gridSize"
+        id="gridSize"
+    />
+
+    <button
+        type="button"
+        (click)="buildGrid()"
+    >
+        Generate Grid
+    </button>
+</div>
+
+<svg
+    [attr.width]="(GapSize + state.gridSize * (GapSize + CellSize))"
+    [attr.height]="(GapSize + state.gridSize * (GapSize + CellSize))"
+>
+    <circle
+        *ngFor="let cell of model.cells"
+        (click)="clickCell(cell)"
+        [attr.cx]="cell.xPos"
+        [attr.cy]="cell.yPos"
+        [attr.r]="CellSize / 2"
+        class="cell"
+        [class.cell-team-a]="cell.state === CellStateEnum.TeamA"
+        [class.cell-team-b]="cell.state === CellStateEnum.TeamB"
+        [class.cell-forbidden]="cell.state === CellStateEnum.Forbidden"
+    ></circle>
+
+    <polygon
+        *ngFor="let square of state.squares"
+        [attr.points]="square.polyPoints"
+        class="square"
+        [class.square-team-a]="square.state === CellStateEnum.TeamA"
+        [class.square-team-b]="square.state === CellStateEnum.TeamB"
+    ></polygon>
+</svg>
+</body>
+</html>

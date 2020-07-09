@@ -244,6 +244,127 @@
           }
         }
       }
+    },
+    "avoid-the-square": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/avoid-the-square",
+      "sourceRoot": "projects/avoid-the-square/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/avoid-the-square",
+            "index": "projects/avoid-the-square/src/index.html",
+            "main": "projects/avoid-the-square/src/main.ts",
+            "polyfills": "projects/avoid-the-square/src/polyfills.ts",
+            "tsConfig": "projects/avoid-the-square/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "projects/avoid-the-square/src/favicon.ico",
+              "projects/avoid-the-square/src/assets"
+            ],
+            "styles": [
+              "projects/avoid-the-square/src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/avoid-the-square/src/environments/environment.ts",
+                  "with": "projects/avoid-the-square/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "avoid-the-square:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "avoid-the-square:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "avoid-the-square:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/avoid-the-square/src/test.ts",
+            "polyfills": "projects/avoid-the-square/src/polyfills.ts",
+            "tsConfig": "projects/avoid-the-square/tsconfig.spec.json",
+            "karmaConfig": "projects/avoid-the-square/karma.conf.js",
+            "assets": [
+              "projects/avoid-the-square/src/favicon.ico",
+              "projects/avoid-the-square/src/assets"
+            ],
+            "styles": [
+              "projects/avoid-the-square/src/styles.scss"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/avoid-the-square/tsconfig.app.json",
+              "projects/avoid-the-square/tsconfig.spec.json",
+              "projects/avoid-the-square/e2e/tsconfig.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        },
+        "e2e": {
+          "builder": "@angular-devkit/build-angular:protractor",
+          "options": {
+            "protractorConfig": "projects/avoid-the-square/e2e/protractor.conf.js",
+            "devServerTarget": "avoid-the-square:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "avoid-the-square:serve:production"
+            }
+          }
+        }
+      }
     }
   },
   "defaultProject": "mpmp",
