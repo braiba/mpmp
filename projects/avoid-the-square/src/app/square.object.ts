@@ -1,5 +1,5 @@
 import {Cell} from './cell.object';
-import {CellStateEnum} from './cell-state.enum';
+import {TeamEnum} from './team.enum';
 
 export class Square {
     protected _polyPoints: string = null;
@@ -9,6 +9,8 @@ export class Square {
         public cell2: Cell,
         public cell3: Cell,
         public cell4: Cell,
+        public team: TeamEnum,
+        public isComplete = false,
     ) {}
 
     public get polyPoints(): string {
@@ -16,10 +18,6 @@ export class Square {
             this._polyPoints = this.generatePolyPoints();
         }
         return this._polyPoints;
-    }
-
-    public get state(): CellStateEnum {
-        return this.cell1.state;
     }
 
     protected generatePolyPoints() {

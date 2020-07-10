@@ -1,5 +1,5 @@
 .cell {
-    stroke: black;
+    stroke: lightgray;
     fill: white;
 }
 
@@ -11,12 +11,23 @@
     fill: red;
 }
 
-.cell-forbidden {
-    fill: grey;
+.cell-forced-a {
+    stroke: blue;
+    stroke-width: 2;
+}
+
+.cell-forced-b {
+    stroke: red;
+    stroke-width: 2;
+}
+
+.cell-impossible {
+    fill: lightgray;
 }
 
 .square {
     fill: none;
+    z-index: -1;
 }
 
 .square-team-a {
@@ -25,4 +36,12 @@
 
 .square-team-b {
     stroke: red;
+}
+
+.square-complete {
+    stroke-width: 3;
+}
+
+.square-partial {
+    stroke-dasharray: 2,3;
 }

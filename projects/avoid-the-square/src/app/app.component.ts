@@ -4,6 +4,7 @@ import {Cell} from './cell.object';
 import {CellStateEnum} from './cell-state.enum';
 import {environment} from '../environments/environment';
 import {Square} from './square.object';
+import {TeamEnum} from './team.enum';
 
 @Component({
     selector: 'app-root',
@@ -11,6 +12,7 @@ import {Square} from './square.object';
 })
 export class AppComponent implements OnInit {
     readonly CellStateEnum: typeof CellStateEnum = CellStateEnum;
+    readonly TeamEnum: typeof TeamEnum = TeamEnum;
     readonly GapSize = environment.gapSize;
     readonly CellSize = environment.cellSize;
 
@@ -55,16 +57,25 @@ export class AppComponent implements OnInit {
     }
 
     clickCell(cell: Cell) {
-        if (cell.state === CellStateEnum.Forbidden) {
+        if (cell.state === CellStateEnum.Impossible) {
             return;
         }
 
-        if (cell.state === CellStateEnum.Empty) {
-            cell.state = CellStateEnum.TeamA;
-        } else if (cell.state === CellStateEnum.TeamA) {
-            cell.state = CellStateEnum.TeamB;
-        } else {
-            cell.state = CellStateEnum.Empty;
+        switch (cell.state) {
+            case CellStateEnum.Empty:
+            case CellStateEnum.ForcedA: {
+                cell.state = CellStateEnum.TeamA;
+                break;
+            }
+            case CellStateEnum.TeamA:
+            case CellStateEnum.ForcedB: {
+                cell.state = CellStateEnum.TeamB;
+                break;
+            }
+
+            case CellStateEnum.TeamB: {
+                cell.state = CellStateEnum.Empty;
+            }
         }
 
         this.detectSquares();
@@ -76,6 +87,12 @@ export class AppComponent implements OnInit {
 
     protected detectSquares() {
         this.state.squares = [];
+
+        for (const cell of this.model.cells) {
+            if (cell.state !== CellStateEnum.TeamA && cell.state !== CellStateEnum.TeamB) {
+                cell.state = CellStateEnum.Empty;
+            }
+        }
 
         for (let a = 1; a < this.state.gridSize; a++) {
             for (let b = 0; b < this.state.gridSize - a; b++) {
@@ -97,24 +114,47 @@ export class AppComponent implements OnInit {
     }
 
     protected isSquare(x: number, y: number, offsetA: number, offsetB): Square {
-        const cellState = this.state.cellMap[x][y].state;
-        if (cellState === CellStateEnum.Empty) {
-            return null;
-        }
-
-        if (
-            this.state.cellMap[x + offsetA][y + offsetB].state !== cellState
-            || this.state.cellMap[x + offsetA - offsetB][y + offsetA + offsetB].state !== cellState
-            || this.state.cellMap[x - offsetB][y + offsetA].state !== cellState
-        ) {
-            return null;
-        }
-
-        return new Square(
+        const cells = [
             this.state.cellMap[x][y],
             this.state.cellMap[x + offsetA][y + offsetB],
             this.state.cellMap[x + offsetA - offsetB][y + offsetA + offsetB],
             this.state.cellMap[x - offsetB][y + offsetA],
-        );
+        ];
+
+        const cellsByTeamMap: {[team: string]: Cell[]} = {
+            '-1': [],
+        };
+        cellsByTeamMap[TeamEnum.TeamA] = [];
+        cellsByTeamMap[TeamEnum.TeamB] = [];
+
+        for (const cell of cells) {
+            cellsByTeamMap[cell.team ?? -1].push(cell);
+        }
+
+        if (cellsByTeamMap[-1].length !== 1) {
+            if (cellsByTeamMap[TeamEnum.TeamA].length !== 4 && cellsByTeamMap[TeamEnum.TeamB].length !== 4) {
+                return null;
+            }
+
+            const complateSquareTeam = (cellsByTeamMap[TeamEnum.TeamA].length === 4 ? TeamEnum.TeamA : TeamEnum.TeamB);
+            return new Square(cells[0], cells[1], cells[2], cells[3], complateSquareTeam, true);
+        }
+
+        if (cellsByTeamMap[TeamEnum.TeamA].length !== 3 && cellsByTeamMap[TeamEnum.TeamB].length !== 3) {
+            return null;
+        }
+
+        const emptyCell = cellsByTeamMap[-1][0];
+        const squareTeam = (cellsByTeamMap[TeamEnum.TeamA].length === 3 ? TeamEnum.TeamA : TeamEnum.TeamB);
+
+        if (emptyCell.state === CellStateEnum.Empty) {
+            emptyCell.state = (squareTeam === TeamEnum.TeamA ? CellStateEnum.ForcedB : CellStateEnum.ForcedA);
+        } else if (emptyCell.state === CellStateEnum.ForcedA && squareTeam === TeamEnum.TeamA) {
+            emptyCell.state = CellStateEnum.Impossible;
+        } else if (emptyCell.state === CellStateEnum.ForcedB && squareTeam === TeamEnum.TeamB) {
+            emptyCell.state = CellStateEnum.Impossible;
+        }
+
+        return new Square(cells[0], cells[1], cells[2], cells[3], squareTeam);
     }
 }

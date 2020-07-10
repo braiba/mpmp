@@ -1,5 +1,6 @@
 import {CellStateEnum} from './cell-state.enum';
 import {environment} from '../environments/environment';
+import {TeamEnum} from './team.enum';
 
 export class Cell {
     protected _polyPoints: string = null;
@@ -24,6 +25,16 @@ export class Cell {
             this._yPos = environment.gapSize + this.y * (environment.gapSize + environment.cellSize) + environment.cellSize / 2;
         }
         return this._yPos;
+    }
+
+    public get team(): TeamEnum {
+        if (this.state === CellStateEnum.TeamA) {
+            return TeamEnum.TeamA;
+        }
+        if (this.state === CellStateEnum.TeamB) {
+            return TeamEnum.TeamB;
+        }
+        return null;
     }
 
     public get polyPoints(): string {

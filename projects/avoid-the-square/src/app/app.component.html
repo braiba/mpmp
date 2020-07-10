@@ -24,6 +24,16 @@
     [attr.width]="(GapSize + state.gridSize * (GapSize + CellSize))"
     [attr.height]="(GapSize + state.gridSize * (GapSize + CellSize))"
 >
+    <polygon
+        *ngFor="let square of state.squares"
+        [attr.points]="square.polyPoints"
+        class="square"
+        [class.square-team-a]="square.team === TeamEnum.TeamA"
+        [class.square-team-b]="square.team === TeamEnum.TeamB"
+        [class.square-partial]="!square.isComplete"
+        [class.square-complete]="square.isComplete"
+    ></polygon>
+
     <circle
         *ngFor="let cell of model.cells"
         (click)="clickCell(cell)"
@@ -33,16 +43,10 @@
         class="cell"
         [class.cell-team-a]="cell.state === CellStateEnum.TeamA"
         [class.cell-team-b]="cell.state === CellStateEnum.TeamB"
-        [class.cell-forbidden]="cell.state === CellStateEnum.Forbidden"
+        [class.cell-forced-a]="cell.state === CellStateEnum.ForcedA"
+        [class.cell-forced-b]="cell.state === CellStateEnum.ForcedB"
+        [class.cell-impossible]="cell.state === CellStateEnum.Impossible"
     ></circle>
-
-    <polygon
-        *ngFor="let square of state.squares"
-        [attr.points]="square.polyPoints"
-        class="square"
-        [class.square-team-a]="square.state === CellStateEnum.TeamA"
-        [class.square-team-b]="square.state === CellStateEnum.TeamB"
-    ></polygon>
 </svg>
 </body>
 </html>
