@@ -1,14 +1,18 @@
-<div>
-    <label for="gridSize">Grid Size:</label>
+<div class="box">
+    <h3>Grid Setup</h3>
 
-    <input
-        type="number"
-        [(ngModel)]="model.gridSize"
-        min="3"
-        max="10"
-        name="gridSize"
-        id="gridSize"
-    />
+    <label>
+        Grid Size:
+
+        <input
+            type="number"
+            [(ngModel)]="model.gridSize"
+            min="3"
+            max="20"
+            name="gridSize"
+            id="gridSize"
+        />
+    </label>
 
     <button
         type="button"
@@ -18,40 +22,44 @@
     </button>
 </div>
 
-<svg
-    [attr.width]="(GapSize + state.gridSize * (GapSize + CellSize))"
-    [attr.height]="(GapSize + state.gridSize * (GapSize + CellSize))"
->
-    <polygon
-        *ngFor="let square of state.squares"
-        [attr.points]="square.polyPoints"
-        class="square"
-        [class.square-team-a]="square.team === TeamEnum.TeamA"
-        [class.square-team-b]="square.team === TeamEnum.TeamB"
-        [class.square-partial]="!square.isComplete"
-        [class.square-complete]="square.isComplete"
-    ></polygon>
+<div class="box">
+    <h3>Grid</h3>
+    <svg
+        [attr.width]="(GapSize + state.board.boardState.gridSize * (GapSize + CellSize))"
+        [attr.height]="(GapSize + state.board.boardState.gridSize * (GapSize + CellSize))"
+    >
+        <polygon
+            *ngFor="let square of state.board.boardState.squares"
+            [attr.points]="square.polyPoints"
+            class="square"
+            [class.square-team-a]="square.team === TeamEnum.TeamA"
+            [class.square-team-b]="square.team === TeamEnum.TeamB"
+            [class.square-partial]="!square.isComplete"
+            [class.square-complete]="square.isComplete"
+        ></polygon>
 
-    <circle
-        *ngFor="let cell of model.cells"
-        (click)="clickCell(cell)"
-        [attr.cx]="cell.xPos"
-        [attr.cy]="cell.yPos"
-        [attr.r]="CellSize / 2"
-        class="cell"
-        [class.cell-team-a]="cell.state === CellStateEnum.TeamA"
-        [class.cell-team-b]="cell.state === CellStateEnum.TeamB"
-        [class.cell-forced-a]="cell.state === CellStateEnum.ForcedA"
-        [class.cell-forced-b]="cell.state === CellStateEnum.ForcedB"
-        [class.cell-impossible]="cell.state === CellStateEnum.Impossible"
-    ></circle>
-</svg>
+        <circle
+            *ngFor="let cell of state.board.boardState.cells"
+            (click)="clickCell(cell)"
+            [attr.cx]="cell.xPos"
+            [attr.cy]="cell.yPos"
+            [attr.r]="CellSize / 2"
+            class="cell"
+            [class.cell-team-a]="cell.state === CellStateEnum.TeamA"
+            [class.cell-team-b]="cell.state === CellStateEnum.TeamB"
+            [class.cell-forced-a]="cell.state === CellStateEnum.ForcedA"
+            [class.cell-forced-b]="cell.state === CellStateEnum.ForcedB"
+            [class.cell-impossible]="cell.state === CellStateEnum.Impossible"
+        ></circle>
+    </svg>
+</div>
 
-<div>
+<div class="box">
+    <h3>Controls</h3>
     <button
         type="button"
         (click)="goBack()"
-        [disabled]="this.state.historyIndex === 0"
+        [disabled]="!state.board.canGoBack()"
     >
         Back
     </button>
@@ -59,7 +67,7 @@
     <button
         type="button"
         (click)="doAllForced()"
-        [disabled]="state.completeSquareCount !== 0 || state.impossibleCellCount !== 0 || state.forcedSquareCount === 0"
+        [disabled]="!canDoAllForced()"
     >
         All Forced
     </button>
@@ -67,8 +75,74 @@
     <button
         type="button"
         (click)="goForward()"
-        [disabled]="state.historyIndex >= state.history.length"
+        [disabled]="!state.board.canGoForward()"
     >
         Forward
     </button>
+</div>
+
+<div class="box">
+    <h3>GIF Generation</h3>
+    <label>
+        Frame Duration (ms)
+        <input
+            type="number"
+            [(ngModel)]="model.gifFrameDuration"
+            min="1"
+            max="100000"
+        />
+    </label>
+
+    <label>
+        Repeat
+        <input
+            type="checkbox"
+            [(ngModel)]="model.gifRepeat"
+        />
+    </label>
+
+    <label *ngIf="model.gifRepeat">
+        Frames Before Repeat
+        <input
+            type="number"
+            [(ngModel)]="model.gifRepeatDelay"
+            min="1"
+            max="100"
+        />
+    </label>
+
+    <button
+        type="button"
+        (click)="generateGif()"
+        [disabled]="state.board.history.length === 0"
+    >
+        Generate GIF
+    </button>
+</div>
+
+<div
+    *ngIf="state.gifUrl || state.generatingGif"
+    class="box"
+>
+    <h3>GIF</h3>
+
+    <p *ngIf="state.generatingGif">Generating...</p>
+
+    <ng-container *ngIf="state.gifUrl">
+        <p>
+            Right click, 'save as' to save
+
+            <button
+                type="button"
+                (click)="state.gifUrl = null"
+            >
+                Close
+            </button>
+        </p>
+
+        <img
+            [src]="state.gifUrl"
+            alt="Generated GIF"
+        />
+    </ng-container>
 </div>

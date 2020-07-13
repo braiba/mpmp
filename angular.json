@@ -272,7 +272,9 @@
             "styles": [
               "projects/avoid-the-square/src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/animated_gif/dist/Animated_GIF.js"
+            ]
           },
           "configurations": {
             "production": {
