@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 
 import {Cell} from './cell.object';
 import {CellStateEnum} from './cell-state.enum';
 import {environment} from '../environments/environment';
 import {Square} from './square.object';
 import {TeamEnum} from './team.enum';
+import {HistoryStep} from './history-step.object';
+import {CellAction} from './cell-action.object';
 
 @Component({
     selector: 'app-root',
@@ -21,16 +23,26 @@ export class AppComponent implements OnInit {
         gridSize: number;
     } = {
         cells: [],
-        gridSize: 5,
+        gridSize: 10,
     };
 
     state: {
         cellMap: Cell[][];
+        completeSquareCount: number,
+        forcedSquareCount: number;
         gridSize: number;
+        history: HistoryStep[],
+        historyIndex: number,
+        impossibleCellCount: number,
         squares: Square[],
     } = {
         cellMap: [],
+        completeSquareCount: 0,
+        forcedSquareCount: 0,
         gridSize: 5,
+        history: [],
+        historyIndex: 0,
+        impossibleCellCount: 0,
         squares: [],
     };
 
@@ -41,6 +53,9 @@ export class AppComponent implements OnInit {
     buildGrid() {
         this.state.gridSize = this.model.gridSize;
         this.state.squares = [];
+
+        this.state.history = [];
+        this.state.historyIndex = 0;
 
         this.model.cells = [];
         this.state.cellMap = [];
@@ -56,11 +71,19 @@ export class AppComponent implements OnInit {
         }
     }
 
+    @HostListener('document:keypress', ['$event'])
+    handleKeyboardEvent(event: KeyboardEvent) {
+        if (event.ctrlKey && event.key === 'z') {
+            this.goBack();
+        }
+    }
+
     clickCell(cell: Cell) {
         if (cell.state === CellStateEnum.Impossible) {
             return;
         }
 
+        const prevTeam = cell.team;
         switch (cell.state) {
             case CellStateEnum.Empty:
             case CellStateEnum.ForcedA: {
@@ -77,8 +100,80 @@ export class AppComponent implements OnInit {
                 cell.state = CellStateEnum.Empty;
             }
         }
+        const newTeam = cell.team;
+
+        if (this.state.history.length > this.state.historyIndex) {
+            this.state.history.splice(this.state.historyIndex);
+        }
+        this.state.history.push(new HistoryStep([new CellAction(cell.x, cell.y, prevTeam, newTeam)]));
+        this.state.historyIndex++;
 
         this.detectSquares();
+    }
+
+    doAllForced() {
+        const actions: CellAction[] = [];
+        for (const cell of this.model.cells) {
+            if (cell.state === CellStateEnum.ForcedA) {
+                cell.state = CellStateEnum.TeamA;
+                actions.push(new CellAction(cell.x, cell.y, null, TeamEnum.TeamA));
+            } else if (cell.state === CellStateEnum.ForcedB) {
+                cell.state = CellStateEnum.TeamB;
+                actions.push(new CellAction(cell.x, cell.y, null, TeamEnum.TeamB));
+            }
+        }
+
+        if (actions.length === 0) {
+            return;
+        }
+
+        if (this.state.history.length > this.state.historyIndex) {
+            this.state.history.splice(this.state.historyIndex);
+        }
+        this.state.history.push(new HistoryStep(actions));
+        this.state.historyIndex++;
+
+        this.detectSquares();
+    }
+
+    goBack() {
+        if (this.state.historyIndex === 0) {
+            return;
+        }
+
+        this.state.historyIndex--;
+        const step = this.state.history[this.state.historyIndex];
+
+        for (const action of step.actions) {
+            this.state.cellMap[action.x][action.y].state = this.getTeamCellState(action.prevTeam);
+        }
+
+        this.detectSquares();
+    }
+
+    goForward() {
+        if (this.state.historyIndex >= this.state.history.length) {
+            return;
+        }
+
+        const step = this.state.history[this.state.historyIndex];
+        this.state.historyIndex++;
+
+        for (const action of step.actions) {
+            this.state.cellMap[action.x][action.y].state = this.getTeamCellState(action.newTeam);
+        }
+
+        this.detectSquares();
+    }
+
+    protected getTeamCellState(team: TeamEnum): CellStateEnum {
+        if (team === TeamEnum.TeamA) {
+            return CellStateEnum.TeamA;
+        }
+        if (team === TeamEnum.TeamB) {
+            return CellStateEnum.TeamB;
+        }
+        return CellStateEnum.Empty;
     }
 
     protected recalculateGrid() {
@@ -87,6 +182,9 @@ export class AppComponent implements OnInit {
 
     protected detectSquares() {
         this.state.squares = [];
+        this.state.completeSquareCount = 0;
+        this.state.forcedSquareCount = 0;
+        this.state.impossibleCellCount = 0;
 
         for (const cell of this.model.cells) {
             if (cell.state !== CellStateEnum.TeamA && cell.state !== CellStateEnum.TeamB) {
@@ -136,8 +234,9 @@ export class AppComponent implements OnInit {
                 return null;
             }
 
-            const complateSquareTeam = (cellsByTeamMap[TeamEnum.TeamA].length === 4 ? TeamEnum.TeamA : TeamEnum.TeamB);
-            return new Square(cells[0], cells[1], cells[2], cells[3], complateSquareTeam, true);
+            const completeSquareTeam = (cellsByTeamMap[TeamEnum.TeamA].length === 4 ? TeamEnum.TeamA : TeamEnum.TeamB);
+            this.state.completeSquareCount++;
+            return new Square(cells[0], cells[1], cells[2], cells[3], completeSquareTeam, true);
         }
 
         if (cellsByTeamMap[TeamEnum.TeamA].length !== 3 && cellsByTeamMap[TeamEnum.TeamB].length !== 3) {
@@ -149,10 +248,13 @@ export class AppComponent implements OnInit {
 
         if (emptyCell.state === CellStateEnum.Empty) {
             emptyCell.state = (squareTeam === TeamEnum.TeamA ? CellStateEnum.ForcedB : CellStateEnum.ForcedA);
-        } else if (emptyCell.state === CellStateEnum.ForcedA && squareTeam === TeamEnum.TeamA) {
+            this.state.forcedSquareCount++;
+        } else if (
+            emptyCell.state === CellStateEnum.ForcedA && squareTeam === TeamEnum.TeamA
+            || emptyCell.state === CellStateEnum.ForcedB && squareTeam === TeamEnum.TeamB
+        ) {
             emptyCell.state = CellStateEnum.Impossible;
-        } else if (emptyCell.state === CellStateEnum.ForcedB && squareTeam === TeamEnum.TeamB) {
-            emptyCell.state = CellStateEnum.Impossible;
+            this.state.impossibleCellCount++;
         }
 
         return new Square(cells[0], cells[1], cells[2], cells[3], squareTeam);

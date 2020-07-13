@@ -1,5 +1,3 @@
-<html>
-<body>
 <div>
     <label for="gridSize">Grid Size:</label>
 
@@ -48,5 +46,29 @@
         [class.cell-impossible]="cell.state === CellStateEnum.Impossible"
     ></circle>
 </svg>
-</body>
-</html>
+
+<div>
+    <button
+        type="button"
+        (click)="goBack()"
+        [disabled]="this.state.historyIndex === 0"
+    >
+        Back
+    </button>
+
+    <button
+        type="button"
+        (click)="doAllForced()"
+        [disabled]="state.completeSquareCount !== 0 || state.impossibleCellCount !== 0 || state.forcedSquareCount === 0"
+    >
+        All Forced
+    </button>
+
+    <button
+        type="button"
+        (click)="goForward()"
+        [disabled]="state.historyIndex >= state.history.length"
+    >
+        Forward
+    </button>
+</div>
