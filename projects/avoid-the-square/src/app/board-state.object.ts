@@ -185,12 +185,20 @@ export class BoardState {
                 case CellStateEnum.TeamA: {
                     ctx.fillStyle = 'blue';
                     ctx.fill();
+
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
                     break;
                 }
 
                 case CellStateEnum.TeamB: {
                     ctx.fillStyle = 'red';
                     ctx.fill();
+
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke();
                     break;
                 }
 
