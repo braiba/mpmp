@@ -1,3 +1,7 @@
+body {
+    margin: 2rem;
+}
+
 .cell {
     stroke: lightgray;
     fill: white;
@@ -46,23 +50,31 @@
     stroke-dasharray: 2,3;
 }
 
-.box {
-    width: auto;
-    font-family: Arial, sans-serif;
-    border: solid 1px #888;
-    border-radius: 4px;
-    padding: 12px;
-    margin-bottom: 1rem;
-
-    h3:first-child {
-        margin-top: 0;
-    }
-}
-
 label {
     display: block;
 }
 
 p button {
     display: inline-block;
+}
+
+.card {
+    margin-bottom: 1rem;
+
+    .card-header,
+    .card-body,
+    .card-footer {
+        & > :last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .card-title .btn-sm {
+        margin-top: -3px;
+        margin-bottom: -3px;
+    }
+}
+
+.btn-group {
+    display: block;
 }

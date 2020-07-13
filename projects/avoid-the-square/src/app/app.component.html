@@ -1,148 +1,214 @@
-<div class="box">
-    <h3>Grid Setup</h3>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Grid Setup
+                    </h5>
+                </div>
 
-    <label>
-        Grid Size:
+                <div class="card-body">
+                    <label>
+                        Grid Size:
 
-        <input
-            type="number"
-            [(ngModel)]="model.gridSize"
-            min="3"
-            max="20"
-            name="gridSize"
-            id="gridSize"
-        />
-    </label>
+                        <input
+                            type="number"
+                            [(ngModel)]="model.gridSize"
+                            min="3"
+                            max="20"
+                            name="gridSize"
+                            id="gridSize"
+                            class="form-control"
+                        />
+                    </label>
+                </div>
 
-    <button
-        type="button"
-        (click)="buildGrid()"
-    >
-        Generate Grid
-    </button>
-</div>
+                <div class="card-footer">
+                    <button
+                        type="button"
+                        (click)="buildGrid()"
+                        class="btn btn-primary"
+                    >
+                        Generate Grid
+                    </button>
+                </div>
+            </div>
 
-<div class="box">
-    <h3>Grid</h3>
-    <svg
-        [attr.width]="(GapSize + state.board.boardState.gridSize * (GapSize + CellSize))"
-        [attr.height]="(GapSize + state.board.boardState.gridSize * (GapSize + CellSize))"
-    >
-        <polygon
-            *ngFor="let square of state.board.boardState.squares"
-            [attr.points]="square.polyPoints"
-            class="square"
-            [class.square-team-a]="square.team === TeamEnum.TeamA"
-            [class.square-team-b]="square.team === TeamEnum.TeamB"
-            [class.square-partial]="!square.isComplete"
-            [class.square-complete]="square.isComplete"
-        ></polygon>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Controls
+                    </h5>
+                </div>
 
-        <circle
-            *ngFor="let cell of state.board.boardState.cells"
-            (click)="clickCell(cell)"
-            [attr.cx]="cell.xPos"
-            [attr.cy]="cell.yPos"
-            [attr.r]="CellSize / 2"
-            class="cell"
-            [class.cell-team-a]="cell.state === CellStateEnum.TeamA"
-            [class.cell-team-b]="cell.state === CellStateEnum.TeamB"
-            [class.cell-forced-a]="cell.state === CellStateEnum.ForcedA"
-            [class.cell-forced-b]="cell.state === CellStateEnum.ForcedB"
-            [class.cell-impossible]="cell.state === CellStateEnum.Impossible"
-        ></circle>
-    </svg>
-</div>
+                <div class="card-body text-center">
+                    <p class="btn-group">
+                        <button
+                            type="button"
+                            (click)="goBack()"
+                            [disabled]="!state.board.canGoBack()"
+                            class="btn btn-primary"
+                        >
+                            Undo
+                        </button>
 
-<div class="box">
-    <h3>Controls</h3>
-    <button
-        type="button"
-        (click)="goBack()"
-        [disabled]="!state.board.canGoBack()"
-    >
-        Back
-    </button>
+                        <button
+                            type="button"
+                            (click)="goForward()"
+                            [disabled]="!state.board.canGoForward()"
+                            class="btn btn-primary"
+                        >
+                            Redo
+                        </button>
+                    </p>
 
-    <button
-        type="button"
-        (click)="doAllForced()"
-        [disabled]="!canDoAllForced()"
-    >
-        All Forced
-    </button>
+                    <p>
+                        <button
+                            type="button"
+                            (click)="doAllForced()"
+                            [disabled]="!canDoAllForced()"
+                            class="btn btn-primary"
+                        >
+                            All Forced Moves
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
 
-    <button
-        type="button"
-        (click)="goForward()"
-        [disabled]="!state.board.canGoForward()"
-    >
-        Forward
-    </button>
-</div>
+        <div class="col-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        Grid
+                    </h5>
+                </div>
 
-<div class="box">
-    <h3>GIF Generation</h3>
-    <label>
-        Frame Duration (ms)
-        <input
-            type="number"
-            [(ngModel)]="model.gifFrameDuration"
-            min="1"
-            max="100000"
-        />
-    </label>
+                <div class="card-body">
+                    <svg
+                        [attr.width]="(GapSize + state.board.boardState.gridSize * (GapSize + CellSize))"
+                        [attr.height]="(GapSize + state.board.boardState.gridSize * (GapSize + CellSize))"
+                    >
+                        <polygon
+                            *ngFor="let square of state.board.boardState.squares"
+                            [attr.points]="square.polyPoints"
+                            class="square"
+                            [class.square-team-a]="square.team === TeamEnum.TeamA"
+                            [class.square-team-b]="square.team === TeamEnum.TeamB"
+                            [class.square-partial]="!square.isComplete"
+                            [class.square-complete]="square.isComplete"
+                        ></polygon>
 
-    <label>
-        Repeat
-        <input
-            type="checkbox"
-            [(ngModel)]="model.gifRepeat"
-        />
-    </label>
+                        <circle
+                            *ngFor="let cell of state.board.boardState.cells"
+                            (click)="clickCell(cell)"
+                            [attr.cx]="cell.xPos"
+                            [attr.cy]="cell.yPos"
+                            [attr.r]="CellSize / 2"
+                            class="cell"
+                            [class.cell-team-a]="cell.state === CellStateEnum.TeamA"
+                            [class.cell-team-b]="cell.state === CellStateEnum.TeamB"
+                            [class.cell-forced-a]="cell.state === CellStateEnum.ForcedA"
+                            [class.cell-forced-b]="cell.state === CellStateEnum.ForcedB"
+                            [class.cell-impossible]="cell.state === CellStateEnum.Impossible"
+                        ></circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <label *ngIf="model.gifRepeat">
-        Frames Before Repeat
-        <input
-            type="number"
-            [(ngModel)]="model.gifRepeatDelay"
-            min="1"
-            max="100"
-        />
-    </label>
+    <hr />
 
-    <button
-        type="button"
-        (click)="generateGif()"
-        [disabled]="state.board.history.length === 0"
-    >
-        Generate GIF
-    </button>
-</div>
+    <div class="row">
+        <div class="col-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        GIF Generation
+                    </h5>
+                </div>
 
-<div
-    *ngIf="state.gifUrl || state.generatingGif"
-    class="box"
->
-    <h3>GIF</h3>
+                <div class="card-body">
+                    <p>
+                        Generate a GIF based on the current history of the board
+                    </p>
 
-    <p *ngIf="state.generatingGif">Generating...</p>
+                    <label>
+                        Frame Duration (ms)
+                        <input
+                            type="number"
+                            [(ngModel)]="model.gifFrameDuration"
+                            min="1"
+                            max="100000"
+                        />
+                    </label>
 
-    <ng-container *ngIf="state.gifUrl">
-        <p>
-            Right click, 'save as' to save
+                    <label>
+                        Repeat
+                        <input
+                            type="checkbox"
+                            [(ngModel)]="model.gifRepeat"
+                        />
+                    </label>
 
-            <button
-                type="button"
-                (click)="state.gifUrl = null"
-            >
-                Close
-            </button>
-        </p>
+                    <label *ngIf="model.gifRepeat">
+                        Frames Before Repeat
+                        <input
+                            type="number"
+                            [(ngModel)]="model.gifRepeatDelay"
+                            min="1"
+                            max="100"
+                        />
+                    </label>
 
-        <img
-            [src]="state.gifUrl"
-            alt="Generated GIF"
-        />
-    </ng-container>
+                    <button
+                        type="button"
+                        (click)="generateGif()"
+                        [disabled]="state.board.history.length === 0"
+                        class="btn btn-primary"
+                    >
+                        Generate GIF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div
+            *ngIf="state.gifUrl || state.generatingGif"
+            class="col-auto"
+        >
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        GIF
+
+                        <button
+                            type="button"
+                            (click)="state.gifUrl = null"
+                            class="btn btn-primary btn-sm float-right"
+                        >
+                            Close
+                        </button>
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <p *ngIf="state.generatingGif">Generating...</p>
+
+                    <ng-container *ngIf="state.gifUrl">
+                        <p>
+                            Right click, 'save as' to save
+                        </p>
+
+                        <img
+                            [src]="state.gifUrl"
+                            alt="Generated GIF"
+                        />
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
